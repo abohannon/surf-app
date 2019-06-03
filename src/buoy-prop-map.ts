@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   YY: `year`,
   MM: `month`,
   DD: `day`,

@@ -1,7 +1,7 @@
-const request = require('request-promise-native')
-const buoyPropMap = require('./buoy-prop-map')
+import request from 'request-promise-native'
+import buoyPropMap from './buoy-prop-map'
 
-const fetchStationBuoyData = async (stationId) => {
+const fetchStationBuoyData = async (stationId: number): Promise<string> => {
   const noaaRealtimeUri = `https://www.ndbc.noaa.gov/data/realtime2/${stationId}.txt`
   try {
     return request(noaaRealtimeUri)
@@ -11,11 +11,15 @@ const fetchStationBuoyData = async (stationId) => {
   }
 }
 
-const createArrayFromRawBuoyData = (rawBuoyData) => {
+const createArrayFromRawBuoyData = (rawBuoyData: string): string[][] => {
   return rawBuoyData.split('\n').map((line) => line.replace(/\s{2,}/g, ' ').replace('#', '').split(' '))
 }
 
-const buildBuoyDataObject = (buoyData, prop, value) => {
+interface buoyDataInterface {
+  date: Date,
+}
+
+const buildBuoyDataObject = (buoyData: buoyDataInterface, prop: string, value: any): void => {
     switch (prop) {
       case `year`:
         buoyData.date.setUTCFullYear(value)
@@ -37,7 +41,7 @@ const buildBuoyDataObject = (buoyData, prop, value) => {
     }
   }
 
-const createObjectFromBuoyDataArray = (buoyDataArray, dataHead) => {
+const createObjectFromBuoyDataArray = (buoyDataArray: string[][], dataHead: string[]): object[] => {
   return buoyDataArray.map((line) => {
     return line.reduce((acc, value, i) => {
         const prop = dataHead[i]
@@ -52,7 +56,7 @@ const createObjectFromBuoyDataArray = (buoyDataArray, dataHead) => {
   })
 }
 
-const formatBuoyData = async () => {
+const formatBuoyData = async (): Promise<void> => {
   const rawBuoyData = await fetchStationBuoyData(46258)
   const buoyDataArray = createArrayFromRawBuoyData(rawBuoyData)
   // isolate the data header properties
